@@ -10,8 +10,24 @@ export const StateContext = ({ children }) => {
   const [totalQuantities, setTotalQuantities] = useState(0)
   const [qty, setQty] = useState(1)
 
+  useEffect(() => {
+    localStorage.getItem('cartItems') &&
+      setCartItems(JSON.parse(localStorage.getItem('cartItems')))
+    localStorage.getItem('totalPrice') &&
+      setTotalPrice(JSON.parse(localStorage.getItem('totalPrice')))
+    localStorage.getItem('totalQuantities') &&
+      setTotalQuantities(JSON.parse(localStorage.getItem('totalQuantities')))
+  }, [])
+
+  useEffect(() => {
+    if (cartItems && totalPrice && totalQuantities) {
+      localStorage.setItem('cartItems', JSON.stringify(cartItems))
+      localStorage.setItem('totalPrice', JSON.stringify(totalPrice))
+      localStorage.setItem('totalQuantities', JSON.stringify(totalQuantities))
+    }
+  }, [cartItems, totalPrice, totalQuantities])
+
   let foundProduct
-  //let index
 
   const onAdd = (product, quantity) => {
     const checkProductInCart = cartItems.find(item => item._id === product._id)
@@ -45,6 +61,7 @@ export const StateContext = ({ children }) => {
     setTotalPrice(prevTP => prevTP - foundProduct.price * foundProduct.quantity)
     setTotalQuantities(prevTQts => prevTQts - foundProduct.quantity)
     setCartItems(newCartItems)
+    cartItems.length === 1 && localStorage.clear()
   }
 
   const toggleCartItemQuanitity = (id, value) => {
